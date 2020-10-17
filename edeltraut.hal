@@ -4,52 +4,163 @@
 # overwritten when you run PNCconf again
 
 loadrt [KINS]KINEMATICS
-loadrt [EMCMOT]EMCMOT servo_period_nsec=[EMCMOT]SERVO_PERIOD num_joints=[KINS]JOINTS
+loadrt [EMCMOT]EMCMOT base_period_nsec=[EMCMOT]BASE_PERIOD servo_period_nsec=[EMCMOT]SERVO_PERIOD num_joints=[KINS]JOINTS
 loadrt hostmot2
 loadrt hm2_eth board_ip="192.168.1.121" config=" num_encoders=1 num_pwmgens=0 num_stepgens=5 sserial_port_0=00xxxx" 
 setp    hm2_7i76e.0.watchdog.timeout_ns 5000000
-loadrt pid names=pid.s
 loadrt classicladder_rt
+loadrt mux4 count=1
+loadrt or2 count=3
+#loadusr -W mb2hal config=config_modbus2hal.ini
+
 
 addf hm2_7i76e.0.read          servo-thread
 addf motion-command-handler   servo-thread
 addf motion-controller        servo-thread
-addf pid.s.do-pid-calcs       servo-thread
 addf hm2_7i76e.0.write         servo-thread
 setp hm2_7i76e.0.dpll.01.timer-us -50
 setp hm2_7i76e.0.stepgen.timer-number 1
+
+addf mux4.0 servo-thread
+addf or2.0 servo-thread
+addf or2.1 servo-thread
+addf or2.2 servo-thread
+
+setp axis.x.jog-vel-mode 1
+setp axis.y.jog-vel-mode 1
+setp axis.z.jog-vel-mode 1
+
+setp mux4.0.in0 0.25
+setp mux4.0.in1 0.025
+setp mux4.0.in2 0.0025
+
+net scale1 mux4.0.sel0  <= hm2_7i76e.0.7i76.0.0.input-10
+net scale2 mux4.0.sel1  <= hm2_7i76e.0.7i76.0.0.input-09
+
+net mpg-scale <= mux4.0.out
+net mpg-scale => axis.x.jog-scale
+net mpg-scale => axis.y.jog-scale
+net mpg-scale => axis.z.jog-scale
+
+net mpg-x <= hm2_7i76e.0.7i76.0.0.input-12
+net mpg-y <= hm2_7i76e.0.7i76.0.0.input-13
+net mpg-z <= hm2_7i76e.0.7i76.0.0.input-14
+net mpg-a <= hm2_7i76e.0.7i76.0.0.input-15
+
+net mpg-x axis.x.jog-enable
+net mpg-y axis.y.jog-enable
+net mpg-z axis.z.jog-enable
+net mpg-a axis.a.jog-enable
+
+# enable led of MPG
+net mpg-x or2.0.in0
+net mpg-y or2.0.in1
+net mpg-z or2.1.in0
+net mpg-a or2.1.in1
+net led-or2.2.in0 or2.0.out => or2.2.in0
+net led-or2.2.in1 or2.1.out => or2.2.in1
+net mpg-led-on or2.2.out => hm2_7i76e.0.7i76.0.0.output-03
+
+
+net encoder-counts <= hm2_7i76e.0.encoder.00.count
+net encoder-counts => axis.x.jog-counts
+net encoder-counts => axis.y.jog-counts
+net encoder-counts => axis.z.jog-counts
+net encoder-counts => axis.a.jog-counts
+#net encoder-counts => halui.rapid-override.counts
+#net encoder-counts => joint.0.jog-counts
+
+# Is this required?
+net jog-x-pos 	   => halui.joint.0.plus halui.axis.x.plus
+
+
 
 
 # ClassicLadder
 addf classicladder.0.refresh servo-thread
 
 
+#  ---estop signals---
 # use this to enable correct e stop configuration
 #loadusr classicladder e-stop.clp --nogui
 #net estop-in1    hm2_7i76e.0.7i76.0.0.input-00 => classicladder.0.in-00
 #net estop-in-mpg hm2_7i76e.0.7i76.0.0.input-08 => classicladder.0.in-01
 #net estop-out    classicladder.0.out-00 => iocontrol.0.emc-enable-in
 
-#  ---estop signals---
-
+# just for debug purpose
 net estop-out     <=  iocontrol.0.user-enable-out
 net estop-out     => iocontrol.0.emc-enable-in
+
 
 # For real usage ClassicLadder is required comparing both E-Stops and setting the signal
 # This is an example for just the one external E-Stop
 #net estop-out     hm2_7i76e.0.7i76.0.0.input-00 =>  iocontrol.0.emc-enable-in
 
 
+
+#net mb-mql-mist-is-on mb2hal.mql_coolant_on_off.00 <= halui.mist.is-on
+
+
+
+
+
 # external output signals
-net machine-is-on  <= hm2_7i76e.0.7i76.0.0.output-00
+
+# Disable brake when machine is enabled
+net machine-is-on    	     	<= hm2_7i76e.0.7i76.0.0.output-00
+
+net toolchange-relay		<= hm2_7i76e.0.7i76.0.0.output-01
+
+# TODO: Add a button to UI to enable the servos after failure
+#       What to do with the brake? When to automatically enable the servos? Should always be enabled!
+net enable-servos   	    	<= hm2_7i76e.0.7i76.0.0.output-02
+sets enable-servos TRUE
+
+# MPG
+#net mpg-led-out			<= hm2_7i76e.0.7i76.0.0.output-03
+
+
 
 # external input signals
 
+#********************
+# Homing and Limits
 
-net home-x      <=  hm2_7i76e.0.7i76.0.0.input-16
-net home-y      <=  hm2_7i76e.0.7i76.0.0.input-18
-net home-z      <=  hm2_7i76e.0.7i76.0.0.input-19
+# Limits and homing for X
+net min-x	    <= hm2_7i76e.0.7i76.0.0.input-17
+net max-home-x      <= hm2_7i76e.0.7i76.0.0.input-16
+net min-x 	    => joint.0.neg-lim-sw-in
+net max-home-x 	    => joint.0.pos-lim-sw-in
+net max-home-x 	    => joint.0.home-sw-in
 
+# Limits and homing for Y
+net min-max-home-y  <= hm2_7i76e.0.7i76.0.0.input-18
+net min-max-home-y  => joint.1.neg-lim-sw-in
+net min-max-home-y  => joint.1.pos-lim-sw-in
+net min-max-home-y  => joint.1.home-sw-in
+
+# Limits and homing for Z
+net min-max-home-z  <= hm2_7i76e.0.7i76.0.0.input-19
+net min-max-home-z  => joint.2.neg-lim-sw-in
+net min-max-home-z  => joint.2.pos-lim-sw-in
+net min-max-home-z  => joint.2.home-sw-in
+
+
+#********************
+# Servo Alarms
+
+# TODO: Add to classic ladder e stop program?
+net alarm-x	    <= hm2_7i76e.0.7i76.0.0.input-01
+net alarm-y	    <= hm2_7i76e.0.7i76.0.0.input-02
+net alarm-z	    <= hm2_7i76e.0.7i76.0.0.input-03
+
+
+
+#********************
+# Probing
+
+# TLS, but how to do the second probe?
+net probe-in 	hm2_7i76e.0.7i76.0.0.input-04 => motion.probe-input
 
 
 #*******************
@@ -72,11 +183,6 @@ net x-pos-cmd    hm2_7i76e.0.stepgen.00.position-cmd <= joint.0.motor-pos-cmd
 net x-pos-fb     hm2_7i76e.0.stepgen.00.position-fb => joint.0.motor-pos-fb
 net x-enable     hm2_7i76e.0.stepgen.00.enable <= joint.0.amp-enable-out
 
-# ---setup home / limit switch signals---
-
-net x-home     =>  joint.0.home-sw-in
-net x-neg-limit     =>  joint.0.neg-lim-sw-in
-net x-pos-limit     =>  joint.0.pos-lim-sw-in
 
 #*******************
 #  AXIS Y JOINT 1
@@ -97,12 +203,6 @@ setp   hm2_7i76e.0.stepgen.01.maxvel           [JOINT_1]STEPGEN_MAXVEL
 net y-pos-cmd    hm2_7i76e.0.stepgen.01.position-cmd <= joint.1.motor-pos-cmd
 net y-pos-fb     hm2_7i76e.0.stepgen.01.position-fb => joint.1.motor-pos-fb
 net y-enable     hm2_7i76e.0.stepgen.01.enable <= joint.1.amp-enable-out
-
-# ---setup home / limit switch signals---
-
-net y-home     =>  joint.1.home-sw-in
-net y-neg-limit     =>  joint.1.neg-lim-sw-in
-net y-pos-limit     =>  joint.1.pos-lim-sw-in
 
 
 #*******************
@@ -125,35 +225,16 @@ net z-pos-cmd    hm2_7i76e.0.stepgen.02.position-cmd <= joint.2.motor-pos-cmd
 net z-pos-fb     hm2_7i76e.0.stepgen.02.position-fb => joint.2.motor-pos-fb
 net z-enable     hm2_7i76e.0.stepgen.02.enable <= joint.2.amp-enable-out
 
-# ---setup home / limit switch signals---
-
-net z-home-sw     =>  joint.2.home-sw-in
-net z-neg-limit     =>  joint.2.neg-lim-sw-in
-net z-pos-limit     =>  joint.2.pos-lim-sw-in
-
 
 #*******************
 #  SPINDLE
 #*******************
 
-setp   pid.s.Pgain     [SPINDLE_0]P
-setp   pid.s.Igain     [SPINDLE_0]I
-setp   pid.s.Dgain     [SPINDLE_0]D
-setp   pid.s.bias      [SPINDLE_0]BIAS
-setp   pid.s.FF0       [SPINDLE_0]FF0
-setp   pid.s.FF1       [SPINDLE_0]FF1
-setp   pid.s.FF2       [SPINDLE_0]FF2
-setp   pid.s.deadband  [SPINDLE_0]DEADBAND
-setp   pid.s.maxoutput [SPINDLE_0]MAX_OUTPUT
-setp   pid.s.error-previous-target true
-
-net spindle-index-enable  <=> pid.s.index-enable
-net spindle-enable        =>  pid.s.enable
-net spindle-vel-cmd-rpm     => pid.s.command
-net spindle-vel-fb-rpm      => pid.s.feedback
-net spindle-output        <=  pid.s.output
-
 # ---setup spindle control signals---
+#net spindle-enable		   mb2hal.vfd_run_stop.00
+#net spindle-at-speed		   mb2hal.vfd_is_at_speed.00
+
+
 
 net spindle-vel-cmd-rps        <=  spindle.0.speed-out-rps
 net spindle-vel-cmd-rps-abs    <=  spindle.0.speed-out-rps-abs
@@ -170,7 +251,7 @@ net spindle-index-enable      <=>  spindle.0.index-enable
 
 # ---Setup spindle at speed signals---
 
-sets spindle-at-speed true
+#sets spindle-at-speed true
 
 
 #******************************
@@ -214,7 +295,7 @@ net probe-in     =>  motion.probe-input
 
 # ---jogwheel signals to mesa encoder - shared MPG---
 
-net axis-selected-count     <=  hm2_7i76e.0.encoder.00.count
+#net axis-selected-count     <=  hm2_7i76e.0.encoder.00.count
 
 #  ---motion control signals---
 
@@ -224,9 +305,9 @@ net machine-is-enabled        <=  motion.motion-enabled
 
 #  ---manual tool change signals---
 
-loadusr -W hal_manualtoolchange
-net tool-change-request     iocontrol.0.tool-change       =>  hal_manualtoolchange.change
-net tool-change-confirmed   iocontrol.0.tool-changed      <=  hal_manualtoolchange.changed
-net tool-number             iocontrol.0.tool-prep-number  =>  hal_manualtoolchange.number
-net tool-prepare-loopback   iocontrol.0.tool-prepare      =>  iocontrol.0.tool-prepared
+#loadusr -W hal_manualtoolchange
+#net tool-change-request     iocontrol.0.tool-change       =>  hal_manualtoolchange.change
+#net tool-change-confirmed   iocontrol.0.tool-changed      <=  hal_manualtoolchange.changed
+#net tool-number             iocontrol.0.tool-prep-number  =>  hal_manualtoolchange.number
+#net tool-prepare-loopback   iocontrol.0.tool-prepare      =>  iocontrol.0.tool-prepared
 
