@@ -6,12 +6,13 @@
 loadrt [KINS]KINEMATICS
 loadrt [EMCMOT]EMCMOT base_period_nsec=[EMCMOT]BASE_PERIOD servo_period_nsec=[EMCMOT]SERVO_PERIOD num_joints=[KINS]JOINTS
 loadrt hostmot2
-loadrt hm2_eth board_ip="192.168.1.121" config=" num_encoders=1 num_pwmgens=0 num_stepgens=5 sserial_port_0=00xxxx" 
+loadrt hm2_eth board_ip="10.10.10.10" config=" num_encoders=1 num_pwmgens=0 num_stepgens=5 sserial_port_0=00xxxx" 
 setp    hm2_7i76e.0.watchdog.timeout_ns 5000000
 loadrt classicladder_rt
 loadrt mux4 count=1
 loadrt or2 count=3
 #loadusr -W mb2hal config=config_modbus2hal.ini
+loadusr wj200_vfd --device /dev/ttyUSB0 --baud 57600
 
 
 addf hm2_7i76e.0.read          servo-thread
@@ -29,6 +30,7 @@ addf or2.2 servo-thread
 setp axis.x.jog-vel-mode 1
 setp axis.y.jog-vel-mode 1
 setp axis.z.jog-vel-mode 1
+setp axis.a.jog-vel-mode 1
 
 setp mux4.0.in0 0.25
 setp mux4.0.in1 0.025
@@ -41,6 +43,7 @@ net mpg-scale <= mux4.0.out
 net mpg-scale => axis.x.jog-scale
 net mpg-scale => axis.y.jog-scale
 net mpg-scale => axis.z.jog-scale
+net mpg-scale => axis.a.jog-scale
 
 net mpg-x <= hm2_7i76e.0.7i76.0.0.input-12
 net mpg-y <= hm2_7i76e.0.7i76.0.0.input-13
@@ -67,12 +70,9 @@ net encoder-counts => axis.x.jog-counts
 net encoder-counts => axis.y.jog-counts
 net encoder-counts => axis.z.jog-counts
 net encoder-counts => axis.a.jog-counts
-#net encoder-counts => halui.rapid-override.counts
-#net encoder-counts => joint.0.jog-counts
 
 # Is this required?
 net jog-x-pos 	   => halui.joint.0.plus halui.axis.x.plus
-
 
 
 
@@ -82,14 +82,14 @@ addf classicladder.0.refresh servo-thread
 
 #  ---estop signals---
 # use this to enable correct e stop configuration
-#loadusr classicladder e-stop.clp --nogui
-#net estop-in1    hm2_7i76e.0.7i76.0.0.input-00 => classicladder.0.in-00
-#net estop-in-mpg hm2_7i76e.0.7i76.0.0.input-08 => classicladder.0.in-01
-#net estop-out    classicladder.0.out-00 => iocontrol.0.emc-enable-in
+loadusr classicladder e-stop.clp --nogui
+net estop-in1    hm2_7i76e.0.7i76.0.0.input-00 => classicladder.0.in-00
+net estop-in-mpg hm2_7i76e.0.7i76.0.0.input-08 => classicladder.0.in-01
+net estop-out    classicladder.0.out-00 => iocontrol.0.emc-enable-in
 
 # just for debug purpose
-net estop-out     <=  iocontrol.0.user-enable-out
-net estop-out     => iocontrol.0.emc-enable-in
+#net estop-out     <=  iocontrol.0.user-enable-out
+#net estop-out     => iocontrol.0.emc-enable-in
 
 
 # For real usage ClassicLadder is required comparing both E-Stops and setting the signal
@@ -101,9 +101,6 @@ net estop-out     => iocontrol.0.emc-enable-in
 #net mb-mql-mist-is-on mb2hal.mql_coolant_on_off.00 <= halui.mist.is-on
 
 
-
-
-
 # external output signals
 
 # Disable brake when machine is enabled
@@ -113,12 +110,8 @@ net toolchange-relay		<= hm2_7i76e.0.7i76.0.0.output-01
 
 # TODO: Add a button to UI to enable the servos after failure
 #       What to do with the brake? When to automatically enable the servos? Should always be enabled!
-net enable-servos   	    	<= hm2_7i76e.0.7i76.0.0.output-02
-sets enable-servos TRUE
-
-# MPG
-#net mpg-led-out			<= hm2_7i76e.0.7i76.0.0.output-03
-
+net disable-servos   	    	<= hm2_7i76e.0.7i76.0.0.output-02
+sets disable-servos FALSE
 
 
 # external input signals
@@ -127,20 +120,20 @@ sets enable-servos TRUE
 # Homing and Limits
 
 # Limits and homing for X
-net min-x	    <= hm2_7i76e.0.7i76.0.0.input-17
-net max-home-x      <= hm2_7i76e.0.7i76.0.0.input-16
+net min-x	    <= hm2_7i76e.0.7i76.0.0.input-17-not
+net max-home-x      <= hm2_7i76e.0.7i76.0.0.input-16-not
 net min-x 	    => joint.0.neg-lim-sw-in
 net max-home-x 	    => joint.0.pos-lim-sw-in
 net max-home-x 	    => joint.0.home-sw-in
 
 # Limits and homing for Y
-net min-max-home-y  <= hm2_7i76e.0.7i76.0.0.input-18
+net min-max-home-y  <= hm2_7i76e.0.7i76.0.0.input-18-not
 net min-max-home-y  => joint.1.neg-lim-sw-in
 net min-max-home-y  => joint.1.pos-lim-sw-in
 net min-max-home-y  => joint.1.home-sw-in
 
 # Limits and homing for Z
-net min-max-home-z  <= hm2_7i76e.0.7i76.0.0.input-19
+net min-max-home-z  <= hm2_7i76e.0.7i76.0.0.input-19-not
 net min-max-home-z  => joint.2.neg-lim-sw-in
 net min-max-home-z  => joint.2.pos-lim-sw-in
 net min-max-home-z  => joint.2.home-sw-in
@@ -231,11 +224,6 @@ net z-enable     hm2_7i76e.0.stepgen.02.enable <= joint.2.amp-enable-out
 #*******************
 
 # ---setup spindle control signals---
-#net spindle-enable		   mb2hal.vfd_run_stop.00
-#net spindle-at-speed		   mb2hal.vfd_is_at_speed.00
-
-
-
 net spindle-vel-cmd-rps        <=  spindle.0.speed-out-rps
 net spindle-vel-cmd-rps-abs    <=  spindle.0.speed-out-rps-abs
 net spindle-vel-cmd-rpm        <=  spindle.0.speed-out
@@ -248,10 +236,6 @@ net spindle-revs               =>  spindle.0.revs
 net spindle-at-speed           =>  spindle.0.at-speed
 net spindle-vel-fb-rps         =>  spindle.0.speed-in
 net spindle-index-enable      <=>  spindle.0.index-enable
-
-# ---Setup spindle at speed signals---
-
-#sets spindle-at-speed true
 
 
 #******************************
@@ -301,13 +285,4 @@ net probe-in     =>  motion.probe-input
 
 net in-position               <=  motion.in-position
 net machine-is-enabled        <=  motion.motion-enabled
-
-
-#  ---manual tool change signals---
-
-#loadusr -W hal_manualtoolchange
-#net tool-change-request     iocontrol.0.tool-change       =>  hal_manualtoolchange.change
-#net tool-change-confirmed   iocontrol.0.tool-changed      <=  hal_manualtoolchange.changed
-#net tool-number             iocontrol.0.tool-prep-number  =>  hal_manualtoolchange.number
-#net tool-prepare-loopback   iocontrol.0.tool-prepare      =>  iocontrol.0.tool-prepared
 

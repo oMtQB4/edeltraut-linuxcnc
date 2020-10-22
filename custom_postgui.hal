@@ -1,2 +1,12 @@
 # Include your custom_postgui HAL commands here
 # This file will not be overwritten when you run PNCconf again
+
+# Slave address! Important
+setp wj200-vfd.0.mbslaveaddr      1
+
+# Has to be enabled. Otherwise the brake is disabled
+setp wj200-vfd.0.enable 1
+
+net spindle-cw                     wj200-vfd.0.run
+net spindle-at-speed               wj200-vfd.0.is-at-speed
+net spindle-vel-cmd-rpm            wj200-vfd.0.commanded-frequency
