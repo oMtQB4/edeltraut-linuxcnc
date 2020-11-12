@@ -8,9 +8,11 @@ loadrt [EMCMOT]EMCMOT base_period_nsec=[EMCMOT]BASE_PERIOD servo_period_nsec=[EM
 loadrt hostmot2
 loadrt hm2_eth board_ip="10.10.10.10" config=" num_encoders=1 num_pwmgens=0 num_stepgens=5 sserial_port_0=00xxxx" 
 setp    hm2_7i76e.0.watchdog.timeout_ns 5000000
-loadrt classicladder_rt
+#loadrt classicladder_rt
 loadrt mux4 count=1
 loadrt or2 count=3
+loadrt and2 count=5
+loadrt not count=1
 #loadusr -W mb2hal config=config_modbus2hal.ini
 loadusr wj200_vfd --device /dev/ttyUSB0 --baud 57600
 
@@ -26,6 +28,12 @@ addf mux4.0 servo-thread
 addf or2.0 servo-thread
 addf or2.1 servo-thread
 addf or2.2 servo-thread
+addf and2.0 servo-thread
+addf and2.1 servo-thread
+addf and2.2 servo-thread
+addf and2.3 servo-thread
+addf and2.4 servo-thread
+addf not.0 servo-thread
 
 setp axis.x.jog-vel-mode 1
 setp axis.y.jog-vel-mode 1
@@ -76,26 +84,38 @@ net jog-x-pos 	   => halui.joint.0.plus halui.axis.x.plus
 
 
 
-# ClassicLadder
-addf classicladder.0.refresh servo-thread
-
 
 #  ---estop signals---
 # use this to enable correct e stop configuration
-loadusr classicladder e-stop.clp --nogui
-net estop-in1    hm2_7i76e.0.7i76.0.0.input-00 => classicladder.0.in-00
-net estop-in-mpg hm2_7i76e.0.7i76.0.0.input-08 => classicladder.0.in-01
-net estop-out    classicladder.0.out-00 => iocontrol.0.emc-enable-in
+
+# Servo alarms
+net alarm-x	    <= hm2_7i76e.0.7i76.0.0.input-01
+net alarm-y	    <= hm2_7i76e.0.7i76.0.0.input-02
+net alarm-z	    <= hm2_7i76e.0.7i76.0.0.input-03
+
+# E-Stops
+net estop-in1	    <= hm2_7i76e.0.7i76.0.0.input-00
+net estop-in-mpg    <= hm2_7i76e.0.7i76.0.0.input-08
+
+# Spindle alarm (invert!)
+net spindle-alarm	      not.0.in
+
+# Combination of all alarm signals
+net alarm-x 	              and2.0.in0
+net alarm-y 	    	      and2.0.in1
+net alarm-z	    	      and2.1.in0
+net spindle-alarm-not 	      and2.1.in1 <= not.0.out
+net estop-in1 	    	      and2.2.in0
+net estop-in-mpg    	      and2.2.in1
+net alarm-x-y	    	      and2.3.in0 <= and2.0.out
+net alarm-z-spindle 	      and2.3.in1 <= and2.1.out
+net and-tmp1	    	      and2.4.in0 <= and2.2.out
+net and-tmp2	   	      and2.4.in1 <= and2.3.out
+net e-stop-out	    	      and2.4.out => iocontrol.0.emc-enable-in
 
 # just for debug purpose
 #net estop-out     <=  iocontrol.0.user-enable-out
 #net estop-out     => iocontrol.0.emc-enable-in
-
-
-# For real usage ClassicLadder is required comparing both E-Stops and setting the signal
-# This is an example for just the one external E-Stop
-#net estop-out     hm2_7i76e.0.7i76.0.0.input-00 =>  iocontrol.0.emc-enable-in
-
 
 
 #net mb-mql-mist-is-on mb2hal.mql_coolant_on_off.00 <= halui.mist.is-on
@@ -137,15 +157,6 @@ net min-max-home-z  <= hm2_7i76e.0.7i76.0.0.input-19-not
 net min-max-home-z  => joint.2.neg-lim-sw-in
 net min-max-home-z  => joint.2.pos-lim-sw-in
 net min-max-home-z  => joint.2.home-sw-in
-
-
-#********************
-# Servo Alarms
-
-# TODO: Add to classic ladder e stop program?
-net alarm-x	    <= hm2_7i76e.0.7i76.0.0.input-01
-net alarm-y	    <= hm2_7i76e.0.7i76.0.0.input-02
-net alarm-z	    <= hm2_7i76e.0.7i76.0.0.input-03
 
 
 
