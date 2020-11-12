@@ -1,0 +1,23 @@
+Dynamische Werkzeuglängenkompensation
+Hier handelt es sich um ein Beispiel welches aber noch von dir erweitert werden sollte.
+
+
+Implementierung:
+
+- Ordner anlegen z.B. mit dem Namen macro
+
+- In der INI braucht man 2 neue Zeile in der Sektion [RS274NGC]
+	REMAP=M6  modalgroup=6 ngc=messen
+	SUBROUTINE_PATH = macros
+- In der HAL muss der Probeeingang mit einen Eingang verknüft sein.
+	net probe-in motion.probe-input <= parport.0.pin-02-in
+
+Benutzung:
+
+- Achsen müssen referenziert sein
+- Nullpunkte dürfen nur mit vermessenen Werkzeug gesetzt werden
+
+
+
+
+
