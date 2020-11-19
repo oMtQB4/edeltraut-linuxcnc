@@ -1,13 +1,10 @@
-; MACROCOMMAND=xinc,yinc,zinc
-; MACRODEFAULTS=0,0,0
-; MACROIMAGE=
 ; Testfile go to position
-; will jog the machine to a given position
+; will jog the machine to a position to give
 
 O<go_to_position> sub
 
 G17
-G20
+G21
 G54
 G61
 G40

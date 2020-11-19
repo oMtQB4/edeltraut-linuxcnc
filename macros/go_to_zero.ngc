@@ -1,8 +1,3 @@
-; MACROCOMMAND=
-; MACRODEFAULTS=
-; MACROIMAGE=go_to_zero.png
-; will jog the machine to zero
-
 o<go_to_zero> sub
 
  o<100> if [#5422 LT 0]
