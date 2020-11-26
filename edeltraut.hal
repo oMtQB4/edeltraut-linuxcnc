@@ -13,8 +13,9 @@ loadrt mux4 count=1
 loadrt or2 count=3
 loadrt and2 count=5
 loadrt not count=1
+loadrt scale count=1
 #loadusr -W mb2hal config=config_modbus2hal.ini
-loadusr wj200_vfd --device /dev/ttyUSB0 --baud 57600
+loadusr wj200_vfd --device /dev/ttyUSB0 --baud 9600
 
 
 addf hm2_7i76e.0.read          servo-thread
@@ -34,6 +35,8 @@ addf and2.2 servo-thread
 addf and2.3 servo-thread
 addf and2.4 servo-thread
 addf not.0 servo-thread
+
+addf scale.0 servo-thread
 
 setp axis.x.jog-vel-mode 1
 setp axis.y.jog-vel-mode 1
@@ -234,18 +237,16 @@ net z-enable     hm2_7i76e.0.stepgen.02.enable <= joint.2.amp-enable-out
 #  SPINDLE
 #*******************
 
+
 # ---setup spindle control signals---
-net spindle-vel-cmd-rps        <=  spindle.0.speed-out-rps
-net spindle-vel-cmd-rps-abs    <=  spindle.0.speed-out-rps-abs
-net spindle-vel-cmd-rpm        <=  spindle.0.speed-out
-net spindle-vel-cmd-rpm-abs    <=  spindle.0.speed-out-abs
+net spindle-rpm-in 	   spindle.0.speed-out => scale.0.in
+setp scale.0.gain	   0.016666666
+net spindle-vel-cmd-rpm        <=  scale.0.out
 net spindle-enable             <=  spindle.0.on
 net spindle-cw                 <=  spindle.0.forward
-net spindle-ccw                <=  spindle.0.reverse
 net spindle-brake              <=  spindle.0.brake
 net spindle-revs               =>  spindle.0.revs
 net spindle-at-speed           =>  spindle.0.at-speed
-net spindle-vel-fb-rps         =>  spindle.0.speed-in
 net spindle-index-enable      <=>  spindle.0.index-enable
 
 
