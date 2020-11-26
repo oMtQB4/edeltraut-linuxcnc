@@ -41,7 +41,11 @@ addf scale.0 servo-thread
 setp axis.x.jog-vel-mode 1
 setp axis.y.jog-vel-mode 1
 setp axis.z.jog-vel-mode 1
-setp axis.a.jog-vel-mode 1
+#setp axis.a.jog-vel-mode 1
+setp joint.0.jog-vel-mode 1
+setp joint.1.jog-vel-mode 1
+setp joint.2.jog-vel-mode 1
+#setp joint.3.jog-vel-mode 1
 
 setp mux4.0.in0 0.25
 setp mux4.0.in1 0.025
@@ -51,39 +55,39 @@ net scale1 mux4.0.sel0  <= hm2_7i76e.0.7i76.0.0.input-10
 net scale2 mux4.0.sel1  <= hm2_7i76e.0.7i76.0.0.input-09
 
 net mpg-scale <= mux4.0.out
-net mpg-scale => axis.x.jog-scale
-net mpg-scale => axis.y.jog-scale
-net mpg-scale => axis.z.jog-scale
-net mpg-scale => axis.a.jog-scale
+net mpg-scale => axis.x.jog-scale => joint.0.jog-scale
+net mpg-scale => axis.y.jog-scale => joint.1.jog-scale
+net mpg-scale => axis.z.jog-scale => joint.2.jog-scale
+#net mpg-scale => axis.a.jog-scale => joint.3.jog-scale
 
 net mpg-x <= hm2_7i76e.0.7i76.0.0.input-12
 net mpg-y <= hm2_7i76e.0.7i76.0.0.input-13
 net mpg-z <= hm2_7i76e.0.7i76.0.0.input-14
-net mpg-a <= hm2_7i76e.0.7i76.0.0.input-15
+#net mpg-a <= hm2_7i76e.0.7i76.0.0.input-15
 
-net mpg-x axis.x.jog-enable
-net mpg-y axis.y.jog-enable
-net mpg-z axis.z.jog-enable
-net mpg-a axis.a.jog-enable
+net mpg-x axis.x.jog-enable => joint.0.jog-enable
+net mpg-y axis.y.jog-enable => joint.1.jog-enable
+net mpg-z axis.z.jog-enable => joint.2.jog-enable
+#net mpg-a axis.a.jog-enable => joint.3.jog-enable
 
 # enable led of MPG
 net mpg-x or2.0.in0
 net mpg-y or2.0.in1
 net mpg-z or2.1.in0
-net mpg-a or2.1.in1
+#net mpg-a or2.1.in1
 net led-or2.2.in0 or2.0.out => or2.2.in0
 net led-or2.2.in1 or2.1.out => or2.2.in1
 net mpg-led-on or2.2.out => hm2_7i76e.0.7i76.0.0.output-03
 
 
 net encoder-counts <= hm2_7i76e.0.encoder.00.count
-net encoder-counts => axis.x.jog-counts
-net encoder-counts => axis.y.jog-counts
-net encoder-counts => axis.z.jog-counts
-net encoder-counts => axis.a.jog-counts
+net encoder-counts => axis.x.jog-counts => joint.0.jog-counts
+net encoder-counts => axis.y.jog-counts => joint.1.jog-counts
+net encoder-counts => axis.z.jog-counts => joint.2.jog-counts
+#net encoder-counts => axis.a.jog-counts => joint.3.jog-counts
 
 # Is this required?
-net jog-x-pos 	   => halui.joint.0.plus halui.axis.x.plus
+#net jog-x-pos 	   => halui.joint.0.plus halui.axis.x.plus
 
 
 
@@ -119,6 +123,14 @@ net e-stop-out	    	      and2.4.out => iocontrol.0.emc-enable-in
 # just for debug purpose
 #net estop-out     <=  iocontrol.0.user-enable-out
 #net estop-out     => iocontrol.0.emc-enable-in
+
+
+
+# create signals for tool loading loopback
+net tool-prep-loop iocontrol.0.tool-prepare iocontrol.0.tool-prepared
+net tool-change-loop iocontrol.0.tool-change iocontrol.0.tool-changed
+
+
 
 
 #net mb-mql-mist-is-on mb2hal.mql_coolant_on_off.00 <= halui.mist.is-on
