@@ -11,7 +11,7 @@ setp    hm2_7i76e.0.watchdog.timeout_ns 5000000
 #loadrt classicladder_rt
 loadrt mux4 count=1
 loadrt or2 count=3
-loadrt and2 count=5
+loadrt logic count=1 personality=0x106
 loadrt not count=1
 loadrt scale count=1
 #loadusr -W mb2hal config=config_modbus2hal.ini
@@ -29,11 +29,7 @@ addf mux4.0 servo-thread
 addf or2.0 servo-thread
 addf or2.1 servo-thread
 addf or2.2 servo-thread
-addf and2.0 servo-thread
-addf and2.1 servo-thread
-addf and2.2 servo-thread
-addf and2.3 servo-thread
-addf and2.4 servo-thread
+addf logic.0 servo-thread
 addf not.0 servo-thread
 
 addf scale.0 servo-thread
@@ -108,17 +104,13 @@ net estop-in-mpg    <= hm2_7i76e.0.7i76.0.0.input-08
 net spindle-alarm	      not.0.in
 
 # Combination of all alarm signals
-net alarm-x 	              and2.0.in0
-net alarm-y 	    	      and2.0.in1
-net alarm-z	    	      and2.1.in0
-net spindle-alarm-not 	      and2.1.in1 <= not.0.out
-net estop-in1 	    	      and2.2.in0
-net estop-in-mpg    	      and2.2.in1
-net alarm-x-y	    	      and2.3.in0 <= and2.0.out
-net alarm-z-spindle 	      and2.3.in1 <= and2.1.out
-net and-tmp1	    	      and2.4.in0 <= and2.2.out
-net and-tmp2	   	      and2.4.in1 <= and2.3.out
-net e-stop-out	    	      and2.4.out => iocontrol.0.emc-enable-in
+net alarm-x					logic.0.in-00
+net alarm-y		 			logic.0.in-01
+net alarm-z					logic.0.in-02
+net spindle-alarm-not 	    logic.0.in-03 <= not.0.out
+net estop-in1 	    	    logic.0.in-04
+net estop-in-mpg    	    logic.0.in-05
+net e-stop-out	    	    logic.0.and => iocontrol.0.emc-enable-in
 
 # just for debug purpose
 #net estop-out     <=  iocontrol.0.user-enable-out
