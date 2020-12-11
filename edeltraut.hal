@@ -14,7 +14,6 @@ loadrt or2 count=3
 loadrt logic count=1 personality=0x106
 loadrt not count=1
 loadrt scale count=1
-#loadusr -W mb2hal config=config_modbus2hal.ini
 loadusr wj200_vfd --device /dev/ttyUSB0 --baud 9600
 
 
@@ -244,9 +243,7 @@ net z-enable     hm2_7i76e.0.stepgen.02.enable <= joint.2.amp-enable-out
 
 
 # ---setup spindle control signals---
-net spindle-rpm-in 	   spindle.0.speed-out => scale.0.in
-setp scale.0.gain	   0.016666666
-net spindle-vel-cmd-rpm        <=  scale.0.out
+net spindle-vel-cmd-rps        <=  spindle.0.speed-out-rps-abs
 net spindle-enable             <=  spindle.0.on
 net spindle-cw                 <=  spindle.0.forward
 net spindle-brake              <=  spindle.0.brake
