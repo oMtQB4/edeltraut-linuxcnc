@@ -14,6 +14,6 @@ net spindle-alarm		   wj200-vfd.0.is-alarm
 net spindle-ready		   wj200-vfd.0.is-ready
 
 
-setp qtpyvcp.spindle-load-indicator.max-val 22
-setp qtpyvcp.spindle-load-indicator.min-val 0
-net spindle-current qtpyvcp.spindle-load-indicator.in-f wj200-vfd.0.motor-current
+#setp qtpyvcp.spindle-load-indicator.max-val 22
+#setp qtpyvcp.spindle-load-indicator.min-val 0
+#net spindle-current qtpyvcp.spindle-load-indicator.in-f wj200-vfd.0.motor-current
