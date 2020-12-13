@@ -9,11 +9,11 @@ setp wj200-vfd.0.enable        	   1
 
 net spindle-cw                     wj200-vfd.0.run
 net spindle-at-speed               wj200-vfd.0.is-at-speed
-net spindle-vel-cmd-rpm            wj200-vfd.0.commanded-frequency
+net spindle-vel-cmd-rps            wj200-vfd.0.commanded-frequency
 net spindle-alarm		   wj200-vfd.0.is-alarm
 net spindle-ready		   wj200-vfd.0.is-ready
 
 
-setp qtpyvcp.spindle-load-indicator.max-val 22
-setp qtpyvcp.spindle-load-indicator.min-val 0
-net spindle-current qtpyvcp.spindle-load-indicator.in-f wj200-vfd.0.motor-current
+#setp qtpyvcp.spindle-load-indicator.max-val 22
+#setp qtpyvcp.spindle-load-indicator.min-val 0
+#net spindle-current qtpyvcp.spindle-load-indicator.in-f wj200-vfd.0.motor-current

@@ -13,8 +13,6 @@ loadrt mux4 count=1
 loadrt or2 count=3
 loadrt logic count=1 personality=0x106
 loadrt not count=1
-loadrt scale count=1
-#loadusr -W mb2hal config=config_modbus2hal.ini
 loadusr wj200_vfd --device /dev/ttyUSB0 --baud 9600
 
 
@@ -31,8 +29,6 @@ addf or2.1 servo-thread
 addf or2.2 servo-thread
 addf logic.0 servo-thread
 addf not.0 servo-thread
-
-addf scale.0 servo-thread
 
 setp axis.x.jog-vel-mode 1
 setp axis.y.jog-vel-mode 1
@@ -117,10 +113,12 @@ net e-stop-out	    	    logic.0.and => iocontrol.0.emc-enable-in
 #net estop-out     => iocontrol.0.emc-enable-in
 
 
-
-# create signals for tool loading loopback
-net tool-prep-loop iocontrol.0.tool-prepare iocontrol.0.tool-prepared
-net tool-change-loop iocontrol.0.tool-change iocontrol.0.tool-changed
+loadusr -W hal_manualtoolchange
+net tool-change-request 	iocontrol.0.tool-change			=> hal_manualtoolchange.change
+net tool-change-confirmed	iocontrol.0.tool-changed		<= hal_manualtoolchange.changed
+#net tool-change-loopback	iocontrol.0.tool-change iocontrol.0.tool-changed
+net tool-number				iocontrol.0.tool-prep-number	=> hal_manualtoolchange.number
+net tool-prepare-loopback	iocontrol.0.tool-prepare		=> iocontrol.0.tool-prepared
 
 
 
@@ -243,9 +241,7 @@ net z-enable     hm2_7i76e.0.stepgen.02.enable <= joint.2.amp-enable-out
 
 
 # ---setup spindle control signals---
-net spindle-rpm-in 	   spindle.0.speed-out => scale.0.in
-setp scale.0.gain	   0.016666666
-net spindle-vel-cmd-rpm        <=  scale.0.out
+net spindle-vel-cmd-rps        <=  spindle.0.speed-out-rps-abs
 net spindle-enable             <=  spindle.0.on
 net spindle-cw                 <=  spindle.0.forward
 net spindle-brake              <=  spindle.0.brake

@@ -1,8 +1,4 @@
 o<messen> sub
-#1700=0			(Wechsel X Position)
-#1701=-288.4		(Wechsel Y Position)
-#1702=0   		(Wechsel Z Position)
-
 #1800=-50			(Position sicheres Z)
 #1801=-6 		(Position Taster X)
 #1802=-288.4		(Position Taster Y)
@@ -16,8 +12,8 @@ M5
 G54
 G90 G0 	
 
-G53 Z#1702	   	 (Wechsel Z Position)
-G53 X#1700 Y#1701   	 (Wechsel XY Position)
+;G53 Z#1702	   	 (Wechsel Z Position)
+;G53 X#1700 Y#1701   	 (Wechsel XY Position)
 M6 T#<_selected_tool>
 
 G53 X#1801 Y#1802  	 (Taster Position)
@@ -36,10 +32,9 @@ G1 Z5.0 F1000       	 (frei fahren)
 G90 G0
 
 G43.1 Z#2001       	 (TLO set)
-G53 Z#1800		 (Sichere Z Position)
-G53 Z#1702	   	 (Wechsel Z Position)
+G53 Z0
 
-;(debug, Differenz ist: #2001)
+(debug, Differenz ist: #2001)
 
 (NP wiederhestellen nur G54 bis G59)	
 o100 if[#1900 EQ 540]
