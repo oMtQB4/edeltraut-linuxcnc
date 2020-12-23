@@ -6,10 +6,12 @@ T5 P5 ;new tool
 T6 P6 ;new tool 
 T7 P7 ;new tool 
 T8 P8 ;new tool 
-T9 P9 ;new tool 
+T9 P9 Z+27.611700 ;new tool 
 T10 P10 Z+35.922500 ;new tool 
 T11 P11 Z+31.540800 ;new tool 
 T12 P12 ;new tool 
 T13 P13 ;new tool 
 T19 P19 ;added 20201211 
-T18 P18 Z+29.246667 ;added 20201211 
+T18 P18 Z+29.712500 ;6mm Z4 Endmill Beyond CNC Home 
+T73 P73 Z+53.291666 ;4.2mm Drill 
+T85 P85 Z+24.897083 ;6mm 90° Anbohrer 
