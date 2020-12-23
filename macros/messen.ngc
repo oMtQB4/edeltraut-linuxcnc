@@ -9,17 +9,15 @@ o500 if [#<_current_tool> EQ #<_selected_tool>]
 ;(debug, Tool bereits in der Spindel)
 o500 else 
 M5
-G54
+G59
 G90 G0 	
 
-;G53 Z#1702	   	 (Wechsel Z Position)
-;G53 X#1700 Y#1701   	 (Wechsel XY Position)
 M6 T#<_selected_tool>
 
 G53 X#1801 Y#1802  	 (Taster Position)
 G53 Z#1800	   	 (Sichere Z Position)
 
-G43.1 Z0	   	 (TLO reset)
+G49 			 (TLO reset)
 G91
 G38.2 Z-95  F1000   	 (messen grob)
 G1    Z1.0  F1000   	 (frei fahren)	

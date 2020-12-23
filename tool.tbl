@@ -1,16 +1,15 @@
-;tool  pocket z offset     diameter     remark
-T1 P1 Z0 D0 
-T2 P2 Z0 D0 
-T3 P3 Z0 D0 
-T4 P4 Z0 D0 ;new tool 
-T5 P5 Z0 D0 ;new tool 
-T6 P6 Z0 D0 ;new tool 
-T7 P7 Z0 D0 ;new tool 
-T8 P8 Z0 D0 ;new tool 
-T9 P9 Z0 D0 ;new tool 
-T10 P10 Z0 D0 ;new tool 
-T11 P11 Z0 D0 ;new tool 
-T12 P12 Z0 D0 ;new tool 
-T13 P13 Z0 D0 ;new tool 
+T1 P1 ; 
+T2 P2 ; 
+T3 P3 ; 
+T4 P4 ;new tool 
+T5 P5 ;new tool 
+T6 P6 ;new tool 
+T7 P7 ;new tool 
+T8 P8 ;new tool 
+T9 P9 ;new tool 
+T10 P10 Z+35.922500 ;new tool 
+T11 P11 Z+31.540800 ;new tool 
+T12 P12 ;new tool 
+T13 P13 ;new tool 
 T19 P19 ;added 20201211 
-T18 P18 ;Added 20201211 
+T18 P18 Z+29.246667 ;added 20201211 

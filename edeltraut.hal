@@ -13,6 +13,7 @@ loadrt mux4 count=1
 loadrt or2 count=3
 loadrt logic count=1 personality=0x106
 loadrt not count=1
+loadrt scale count=1
 loadusr wj200_vfd --device /dev/ttyUSB0 --baud 9600
 
 
@@ -29,6 +30,7 @@ addf or2.1 servo-thread
 addf or2.2 servo-thread
 addf logic.0 servo-thread
 addf not.0 servo-thread
+addf scale.0 servo-thread
 
 setp axis.x.jog-vel-mode 1
 setp axis.y.jog-vel-mode 1
@@ -113,12 +115,12 @@ net e-stop-out	    	    logic.0.and => iocontrol.0.emc-enable-in
 #net estop-out     => iocontrol.0.emc-enable-in
 
 
-loadusr -W hal_manualtoolchange
-net tool-change-request 	iocontrol.0.tool-change			=> hal_manualtoolchange.change
-net tool-change-confirmed	iocontrol.0.tool-changed		<= hal_manualtoolchange.changed
+#loadusr -W hal_manualtoolchange
+#net tool-change-request 	iocontrol.0.tool-change			=> hal_manualtoolchange.change
+#net tool-change-confirmed	iocontrol.0.tool-changed		<= hal_manualtoolchange.changed
 #net tool-change-loopback	iocontrol.0.tool-change iocontrol.0.tool-changed
-net tool-number				iocontrol.0.tool-prep-number	=> hal_manualtoolchange.number
-net tool-prepare-loopback	iocontrol.0.tool-prepare		=> iocontrol.0.tool-prepared
+#net tool-number				iocontrol.0.tool-prep-number	=> hal_manualtoolchange.number
+#net tool-prepare-loopback	iocontrol.0.tool-prepare		=> iocontrol.0.tool-prepared
 
 
 
