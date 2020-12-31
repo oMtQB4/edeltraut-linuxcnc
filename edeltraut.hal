@@ -11,8 +11,10 @@ setp    hm2_7i76e.0.watchdog.timeout_ns 5000000
 #loadrt classicladder_rt
 loadrt mux4 count=1
 loadrt or2 count=3
+loadrt and2 count=1
 loadrt logic count=1 personality=0x106
 loadrt not count=1
+loadrt scale count=1
 loadusr wj200_vfd --device /dev/ttyUSB0 --baud 9600
 
 
@@ -27,8 +29,10 @@ addf mux4.0 servo-thread
 addf or2.0 servo-thread
 addf or2.1 servo-thread
 addf or2.2 servo-thread
+addf and2.0 servo-thread
 addf logic.0 servo-thread
 addf not.0 servo-thread
+addf scale.0 servo-thread
 
 setp axis.x.jog-vel-mode 1
 setp axis.y.jog-vel-mode 1
@@ -69,7 +73,10 @@ net mpg-z or2.1.in0
 #net mpg-a or2.1.in1
 net led-or2.2.in0 or2.0.out => or2.2.in0
 net led-or2.2.in1 or2.1.out => or2.2.in1
-net mpg-led-on or2.2.out => hm2_7i76e.0.7i76.0.0.output-03
+net led-or2.2.out and2.0.in0 or2.2.out
+net mpg-led-on and2.0.out => hm2_7i76e.0.7i76.0.0.output-03
+# LED on MPG is shown if and only if the manual mode is activated
+net led-manual    and2.0.in1 halui.mode.is-manual
 
 
 net encoder-counts <= hm2_7i76e.0.encoder.00.count
@@ -113,12 +120,12 @@ net e-stop-out	    	    logic.0.and => iocontrol.0.emc-enable-in
 #net estop-out     => iocontrol.0.emc-enable-in
 
 
-loadusr -W hal_manualtoolchange
-net tool-change-request 	iocontrol.0.tool-change			=> hal_manualtoolchange.change
-net tool-change-confirmed	iocontrol.0.tool-changed		<= hal_manualtoolchange.changed
+#loadusr -W hal_manualtoolchange
+#net tool-change-request 	iocontrol.0.tool-change			=> hal_manualtoolchange.change
+#net tool-change-confirmed	iocontrol.0.tool-changed		<= hal_manualtoolchange.changed
 #net tool-change-loopback	iocontrol.0.tool-change iocontrol.0.tool-changed
-net tool-number				iocontrol.0.tool-prep-number	=> hal_manualtoolchange.number
-net tool-prepare-loopback	iocontrol.0.tool-prepare		=> iocontrol.0.tool-prepared
+#net tool-number				iocontrol.0.tool-prep-number	=> hal_manualtoolchange.number
+#net tool-prepare-loopback	iocontrol.0.tool-prepare		=> iocontrol.0.tool-prepared
 
 
 
