@@ -1,0 +1,32 @@
+addf logic.0 servo-thread
+addf not.0 servo-thread
+
+
+#  ---estop signals---
+# use this to enable correct e stop configuration
+
+# Servo alarms
+net alarm-x	    <= hm2_7i76e.0.7i76.0.0.input-01
+net alarm-y	    <= hm2_7i76e.0.7i76.0.0.input-02
+net alarm-z	    <= hm2_7i76e.0.7i76.0.0.input-03
+
+# E-Stops
+net estop-in1	    <= hm2_7i76e.0.7i76.0.0.input-00
+net estop-in-mpg    <= hm2_7i76e.0.7i76.0.0.input-08
+
+# Spindle alarm (invert!)
+net spindle-alarm	      not.0.in
+
+# Combination of all alarm signals
+net alarm-x					logic.0.in-00
+net alarm-y		 			logic.0.in-01
+net alarm-z					logic.0.in-02
+net spindle-alarm-not 	    logic.0.in-03 <= not.0.out
+net estop-in1 	    	    logic.0.in-04
+net estop-in-mpg    	    logic.0.in-05
+net e-stop-out	    	    logic.0.and => iocontrol.0.emc-enable-in
+
+# just for debug purpose
+#net estop-out     <=  iocontrol.0.user-enable-out
+#net estop-out     => iocontrol.0.emc-enable-in
+

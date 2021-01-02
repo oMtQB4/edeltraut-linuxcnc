@@ -25,236 +25,13 @@ addf hm2_7i76e.0.write         servo-thread
 setp hm2_7i76e.0.dpll.01.timer-us -50
 setp hm2_7i76e.0.stepgen.timer-number 1
 
-addf mux4.0 servo-thread
-addf or2.0 servo-thread
-addf or2.1 servo-thread
-addf or2.2 servo-thread
-addf and2.0 servo-thread
-addf logic.0 servo-thread
-addf not.0 servo-thread
 addf scale.0 servo-thread
 
-setp axis.x.jog-vel-mode 1
-setp axis.y.jog-vel-mode 1
-setp axis.z.jog-vel-mode 1
-#setp axis.a.jog-vel-mode 1
-setp joint.0.jog-vel-mode 1
-setp joint.1.jog-vel-mode 1
-setp joint.2.jog-vel-mode 1
-#setp joint.3.jog-vel-mode 1
+source mpg.hal
+source e-stop.hal
+source joints.hal
+source spindle.hal
 
-setp mux4.0.in0 0.25
-setp mux4.0.in1 0.025
-setp mux4.0.in2 0.0025
-
-net scale1 mux4.0.sel0  <= hm2_7i76e.0.7i76.0.0.input-10
-net scale2 mux4.0.sel1  <= hm2_7i76e.0.7i76.0.0.input-09
-
-net mpg-scale <= mux4.0.out
-net mpg-scale => axis.x.jog-scale => joint.0.jog-scale
-net mpg-scale => axis.y.jog-scale => joint.1.jog-scale
-net mpg-scale => axis.z.jog-scale => joint.2.jog-scale
-#net mpg-scale => axis.a.jog-scale => joint.3.jog-scale
-
-net mpg-x <= hm2_7i76e.0.7i76.0.0.input-12
-net mpg-y <= hm2_7i76e.0.7i76.0.0.input-13
-net mpg-z <= hm2_7i76e.0.7i76.0.0.input-14
-#net mpg-a <= hm2_7i76e.0.7i76.0.0.input-15
-
-net mpg-x axis.x.jog-enable => joint.0.jog-enable
-net mpg-y axis.y.jog-enable => joint.1.jog-enable
-net mpg-z axis.z.jog-enable => joint.2.jog-enable
-#net mpg-a axis.a.jog-enable => joint.3.jog-enable
-
-# enable led of MPG
-net mpg-x or2.0.in0
-net mpg-y or2.0.in1
-net mpg-z or2.1.in0
-#net mpg-a or2.1.in1
-net led-or2.2.in0 or2.0.out => or2.2.in0
-net led-or2.2.in1 or2.1.out => or2.2.in1
-net led-or2.2.out and2.0.in0 or2.2.out
-net mpg-led-on and2.0.out => hm2_7i76e.0.7i76.0.0.output-03
-# LED on MPG is shown if and only if the manual mode is activated
-net led-manual    and2.0.in1 halui.mode.is-manual
-
-
-net encoder-counts <= hm2_7i76e.0.encoder.00.count
-net encoder-counts => axis.x.jog-counts => joint.0.jog-counts
-net encoder-counts => axis.y.jog-counts => joint.1.jog-counts
-net encoder-counts => axis.z.jog-counts => joint.2.jog-counts
-#net encoder-counts => axis.a.jog-counts => joint.3.jog-counts
-
-# Is this required?
-#net jog-x-pos 	   => halui.joint.0.plus halui.axis.x.plus
-
-
-
-
-#  ---estop signals---
-# use this to enable correct e stop configuration
-
-# Servo alarms
-net alarm-x	    <= hm2_7i76e.0.7i76.0.0.input-01
-net alarm-y	    <= hm2_7i76e.0.7i76.0.0.input-02
-net alarm-z	    <= hm2_7i76e.0.7i76.0.0.input-03
-
-# E-Stops
-net estop-in1	    <= hm2_7i76e.0.7i76.0.0.input-00
-net estop-in-mpg    <= hm2_7i76e.0.7i76.0.0.input-08
-
-# Spindle alarm (invert!)
-net spindle-alarm	      not.0.in
-
-# Combination of all alarm signals
-net alarm-x					logic.0.in-00
-net alarm-y		 			logic.0.in-01
-net alarm-z					logic.0.in-02
-net spindle-alarm-not 	    logic.0.in-03 <= not.0.out
-net estop-in1 	    	    logic.0.in-04
-net estop-in-mpg    	    logic.0.in-05
-net e-stop-out	    	    logic.0.and => iocontrol.0.emc-enable-in
-
-# just for debug purpose
-#net estop-out     <=  iocontrol.0.user-enable-out
-#net estop-out     => iocontrol.0.emc-enable-in
-
-
-#loadusr -W hal_manualtoolchange
-#net tool-change-request 	iocontrol.0.tool-change			=> hal_manualtoolchange.change
-#net tool-change-confirmed	iocontrol.0.tool-changed		<= hal_manualtoolchange.changed
-#net tool-change-loopback	iocontrol.0.tool-change iocontrol.0.tool-changed
-#net tool-number				iocontrol.0.tool-prep-number	=> hal_manualtoolchange.number
-#net tool-prepare-loopback	iocontrol.0.tool-prepare		=> iocontrol.0.tool-prepared
-
-
-
-
-#net mb-mql-mist-is-on mb2hal.mql_coolant_on_off.00 <= halui.mist.is-on
-
-
-# external output signals
-
-# Disable brake when machine is enabled
-net machine-is-on    	     	<= hm2_7i76e.0.7i76.0.0.output-00
-
-net toolchange-relay		<= hm2_7i76e.0.7i76.0.0.output-01
-
-# TODO: Add a button to UI to enable the servos after failure
-#       What to do with the brake? When to automatically enable the servos? Should always be enabled!
-net disable-servos   	    	<= hm2_7i76e.0.7i76.0.0.output-02
-sets disable-servos FALSE
-
-
-# external input signals
-
-#********************
-# Homing and Limits
-
-# Limits and homing for X
-net min-x	    <= hm2_7i76e.0.7i76.0.0.input-17-not
-net max-home-x      <= hm2_7i76e.0.7i76.0.0.input-16-not
-net min-x 	    => joint.0.neg-lim-sw-in
-net max-home-x 	    => joint.0.pos-lim-sw-in
-net max-home-x 	    => joint.0.home-sw-in
-
-# Limits and homing for Y
-net min-max-home-y  <= hm2_7i76e.0.7i76.0.0.input-18-not
-net min-max-home-y  => joint.1.neg-lim-sw-in
-net min-max-home-y  => joint.1.pos-lim-sw-in
-net min-max-home-y  => joint.1.home-sw-in
-
-# Limits and homing for Z
-net min-max-home-z  <= hm2_7i76e.0.7i76.0.0.input-19-not
-net min-max-home-z  => joint.2.neg-lim-sw-in
-net min-max-home-z  => joint.2.pos-lim-sw-in
-net min-max-home-z  => joint.2.home-sw-in
-
-
-
-#********************
-# Probing
-
-# TLS, but how to do the second probe?
-net probe-in 	hm2_7i76e.0.7i76.0.0.input-04-not => motion.probe-input
-
-
-#*******************
-#  AXIS X JOINT 0
-#*******************
-
-setp   hm2_7i76e.0.stepgen.00.dirsetup        [JOINT_0]DIRSETUP
-setp   hm2_7i76e.0.stepgen.00.dirhold         [JOINT_0]DIRHOLD
-setp   hm2_7i76e.0.stepgen.00.steplen         [JOINT_0]STEPLEN
-setp   hm2_7i76e.0.stepgen.00.stepspace       [JOINT_0]STEPSPACE
-setp   hm2_7i76e.0.stepgen.00.position-scale  [JOINT_0]STEP_SCALE
-setp   hm2_7i76e.0.stepgen.00.step_type        0
-setp   hm2_7i76e.0.stepgen.00.control-type     0
-setp   hm2_7i76e.0.stepgen.00.maxaccel         [JOINT_0]STEPGEN_MAXACCEL
-setp   hm2_7i76e.0.stepgen.00.maxvel           [JOINT_0]STEPGEN_MAXVEL
-
-# ---closedloop stepper signals---
-
-net x-pos-cmd    hm2_7i76e.0.stepgen.00.position-cmd <= joint.0.motor-pos-cmd
-net x-pos-fb     hm2_7i76e.0.stepgen.00.position-fb => joint.0.motor-pos-fb
-net x-enable     hm2_7i76e.0.stepgen.00.enable <= joint.0.amp-enable-out
-
-
-#*******************
-#  AXIS Y JOINT 1
-#*******************
-
-setp   hm2_7i76e.0.stepgen.01.dirsetup        [JOINT_1]DIRSETUP
-setp   hm2_7i76e.0.stepgen.01.dirhold         [JOINT_1]DIRHOLD
-setp   hm2_7i76e.0.stepgen.01.steplen         [JOINT_1]STEPLEN
-setp   hm2_7i76e.0.stepgen.01.stepspace       [JOINT_1]STEPSPACE
-setp   hm2_7i76e.0.stepgen.01.position-scale  [JOINT_1]STEP_SCALE
-setp   hm2_7i76e.0.stepgen.01.step_type        0
-setp   hm2_7i76e.0.stepgen.01.control-type     0
-setp   hm2_7i76e.0.stepgen.01.maxaccel         [JOINT_1]STEPGEN_MAXACCEL
-setp   hm2_7i76e.0.stepgen.01.maxvel           [JOINT_1]STEPGEN_MAXVEL
-
-# ---closedloop stepper signals---
-
-net y-pos-cmd    hm2_7i76e.0.stepgen.01.position-cmd <= joint.1.motor-pos-cmd
-net y-pos-fb     hm2_7i76e.0.stepgen.01.position-fb => joint.1.motor-pos-fb
-net y-enable     hm2_7i76e.0.stepgen.01.enable <= joint.1.amp-enable-out
-
-
-#*******************
-#  AXIS Z JOINT 2
-#*******************
-
-setp   hm2_7i76e.0.stepgen.02.dirsetup        [JOINT_2]DIRSETUP
-setp   hm2_7i76e.0.stepgen.02.dirhold         [JOINT_2]DIRHOLD
-setp   hm2_7i76e.0.stepgen.02.steplen         [JOINT_2]STEPLEN
-setp   hm2_7i76e.0.stepgen.02.stepspace       [JOINT_2]STEPSPACE
-setp   hm2_7i76e.0.stepgen.02.position-scale  [JOINT_2]STEP_SCALE
-setp   hm2_7i76e.0.stepgen.02.step_type        0
-setp   hm2_7i76e.0.stepgen.02.control-type     0
-setp   hm2_7i76e.0.stepgen.02.maxaccel         [JOINT_2]STEPGEN_MAXACCEL
-setp   hm2_7i76e.0.stepgen.02.maxvel           [JOINT_2]STEPGEN_MAXVEL
-
-# ---closedloop stepper signals---
-
-net z-pos-cmd    hm2_7i76e.0.stepgen.02.position-cmd <= joint.2.motor-pos-cmd
-net z-pos-fb     hm2_7i76e.0.stepgen.02.position-fb => joint.2.motor-pos-fb
-net z-enable     hm2_7i76e.0.stepgen.02.enable <= joint.2.amp-enable-out
-
-
-#*******************
-#  SPINDLE
-#*******************
-
-
-# ---setup spindle control signals---
-net spindle-vel-cmd-rps        <=  spindle.0.speed-out-rps-abs
-net spindle-enable             <=  spindle.0.on
-net spindle-cw                 <=  spindle.0.forward
-net spindle-brake              <=  spindle.0.brake
-net spindle-revs               =>  spindle.0.revs
-net spindle-at-speed           =>  spindle.0.at-speed
-net spindle-index-enable      <=>  spindle.0.index-enable
 
 
 #******************************
@@ -280,25 +57,38 @@ net jog-z-analog   halui.axis.z.analog
 net z-is-homed     halui.joint.2.is-homed
 net jog-selected-pos      halui.axis.selected.plus
 net jog-selected-neg      halui.axis.selected.minus
-net spindle-manual-cw     halui.spindle.0.forward
-net spindle-manual-ccw    halui.spindle.0.reverse
-net spindle-manual-stop   halui.spindle.0.stop
 net machine-is-on         halui.machine.is-on
 net jog-speed             halui.axis.jog-speed
 net MDI-mode              halui.mode.is-mdi
+
+
+# external output signals
+
+# Disable brake when machine is enabled
+net machine-is-on    	     	<= hm2_7i76e.0.7i76.0.0.output-00
+
+net toolchange-relay		<= hm2_7i76e.0.7i76.0.0.output-01
+
+
+#********************
+# Probing
+
+# TLS, but how to do the second probe?
+net probe-in 	hm2_7i76e.0.7i76.0.0.input-04-not => motion.probe-input
+
 
 #  ---coolant signals---
 
 net coolant-mist      <=  iocontrol.0.coolant-mist
 net coolant-flood     <=  iocontrol.0.coolant-flood
 
+#net mb-mql-mist-is-on mb2hal.mql_coolant_on_off.00 <= halui.mist.is-on
+
+
+
 #  ---probe signal---
 
 net probe-in     =>  motion.probe-input
-
-# ---jogwheel signals to mesa encoder - shared MPG---
-
-#net axis-selected-count     <=  hm2_7i76e.0.encoder.00.count
 
 #  ---motion control signals---
 
