@@ -27,14 +27,14 @@ net spindle-current gmoccapy.spindle_feedback_bar scale.0.out
 
 
 # The next lines are only needed if the pins had been connected before
-#unlinkp iocontrol.0.tool-change
-#unlinkp iocontrol.0.tool-changed
-#unlinkp iocontrol.0.tool-prep-number
-#unlinkp iocontrol.0.tool-prepared
+unlinkp iocontrol.0.tool-change
+unlinkp iocontrol.0.tool-changed
+unlinkp iocontrol.0.tool-prep-number
+unlinkp iocontrol.0.tool-prepared
 
 # link to gmoccapy toolchange, so you get the advantage of tool description on change dialog
-#net tool-change gmoccapy.toolchange-change <= iocontrol.0.tool-change
-#net tool-changed gmoccapy.toolchange-changed <= iocontrol.0.tool-changed
-#net tool-prep-number gmoccapy.toolchange-number <= iocontrol.0.tool-prep-number
-#net tool-prep-loop iocontrol.0.tool-prepare <= iocontrol.0.tool-prepared
+net tool-change gmoccapy.toolchange-change <= iocontrol.0.tool-change
+net tool-changed gmoccapy.toolchange-changed <= iocontrol.0.tool-changed
+net tool-prep-number gmoccapy.toolchange-number <= iocontrol.0.tool-prep-number
+net tool-prep-loop iocontrol.0.tool-prepare <= iocontrol.0.tool-prepared
 
