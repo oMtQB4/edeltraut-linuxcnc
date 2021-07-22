@@ -2,39 +2,39 @@
 # This file will not be overwritten when you run PNCconf again
 
 # Slave address! Important
-setp wj200-vfd.0.mbslaveaddr       1
+setp pi500-vfd.0.mbslaveaddr       1
 
 # Has to be enabled. Otherwise the VFD trips
-setp wj200-vfd.0.enable        	   1
+setp pi500-vfd.0.enable        	   1
 
-net spindle-cw                     wj200-vfd.0.run
-net spindle-at-speed               wj200-vfd.0.is-at-speed
-net spindle-vel-cmd-rps            wj200-vfd.0.commanded-frequency
-net spindle-alarm		   wj200-vfd.0.is-alarm
-net spindle-ready		   wj200-vfd.0.is-ready
+net spindle-cw                     pi500-vfd.0.run
+#net spindle-at-speed               pi500-vfd.0.is-at-speed
+net spindle-vel-cmd-rps            pi500-vfd.0.commanded-frequency
+net spindle-alarm		   pi500-vfd.0.is-alarm
+net spindle-ready		   pi500-vfd.0.is-ready
 
 
 #setp qtpyvcp.spindle-load-indicator.max-val 22
 #setp qtpyvcp.spindle-load-indicator.min-val 0
-#net spindle-current qtpyvcp.spindle-load-indicator.in-f wj200-vfd.0.motor-current
+#net spindle-current qtpyvcp.spindle-load-indicator.in-f pi500-vfd.0.motor-current
 
-net motor-current-scale  wj200-vfd.0.motor-current => scale.0.in
+net motor-current-scale  pi500-vfd.0.motor-current => scale.0.in
 setp scale.0.offset 0
 setp scale.0.gain 1000
 
-net spindle-at-speed gmoccapy.spindle_at_speed_led
+#net spindle-at-speed gmoccapy.spindle_at_speed_led
 net spindle-current gmoccapy.spindle_feedback_bar scale.0.out
 
 
 # The next lines are only needed if the pins had been connected before
-unlinkp iocontrol.0.tool-change
-unlinkp iocontrol.0.tool-changed
-unlinkp iocontrol.0.tool-prep-number
-unlinkp iocontrol.0.tool-prepared
+#unlinkp iocontrol.0.tool-change
+#unlinkp iocontrol.0.tool-changed
+#unlinkp iocontrol.0.tool-prep-number
+#unlinkp iocontrol.0.tool-prepared
 
 # link to gmoccapy toolchange, so you get the advantage of tool description on change dialog
-net tool-change gmoccapy.toolchange-change <= iocontrol.0.tool-change
-net tool-changed gmoccapy.toolchange-changed <= iocontrol.0.tool-changed
-net tool-prep-number gmoccapy.toolchange-number <= iocontrol.0.tool-prep-number
-net tool-prep-loop iocontrol.0.tool-prepare <= iocontrol.0.tool-prepared
+#net tool-change gmoccapy.toolchange-change <= iocontrol.0.tool-change
+#net tool-changed gmoccapy.toolchange-changed <= iocontrol.0.tool-changed
+#net tool-prep-number gmoccapy.toolchange-number <= iocontrol.0.tool-prep-number
+#net tool-prep-loop iocontrol.0.tool-prepare <= iocontrol.0.tool-prepared
 

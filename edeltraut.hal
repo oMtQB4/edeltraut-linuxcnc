@@ -15,7 +15,7 @@ loadrt and2 count=1
 loadrt logic count=1 personality=0x106
 loadrt not count=1
 loadrt scale count=1
-loadusr wj200_vfd --device /dev/ttyUSB0 --baud 9600
+loadusr pi500_vfd --device /dev/ttyUSB0 --baud 9600
 
 
 addf hm2_7i76e.0.read          servo-thread
@@ -67,7 +67,14 @@ net MDI-mode              halui.mode.is-mdi
 # Disable brake when machine is enabled
 net machine-is-on    	     	<= hm2_7i76e.0.7i76.0.0.output-00
 
-net toolchange-relay		<= hm2_7i76e.0.7i76.0.0.output-01
+#net spindle-cooling-relay	<= hm2_7i76e.0.7i76.0.0.output-01
+net toolchange-relay		=> hm2_7i76e.0.7i76.0.0.output-04
+#net sperrluft-relay		<= hm2_7i76e.0.7i76.0.0.output-05
+net spindle-enable		<= hm2_7i76e.0.7i76.0.0.output-05
+net spindle-enable		<= hm2_7i76e.0.7i76.0.0.output-01
+
+net toolchange-relay		<= hm2_7i76e.0.7i76.0.0.input-24
+
 
 
 #********************
