@@ -27,10 +27,6 @@ setp hm2_7i76e.0.stepgen.timer-number 1
 
 addf scale.0 servo-thread
 
-source mpg.hal
-source e-stop.hal
-source joints.hal
-source spindle.hal
 
 
 
