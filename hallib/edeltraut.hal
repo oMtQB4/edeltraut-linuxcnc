@@ -9,12 +9,14 @@ loadrt hostmot2
 loadrt hm2_eth board_ip="10.10.10.10" config=" num_encoders=1 num_pwmgens=0 num_stepgens=5 sserial_port_0=00xxxx" 
 setp    hm2_7i76e.0.watchdog.timeout_ns 5000000
 #loadrt classicladder_rt
+
 loadrt mux4 count=1
-loadrt or2 count=3
-loadrt and2 count=1
+loadrt or2 names=or.led.0,or.led.1,or.led.2,or.probe
+loadrt and2 names=and2.mpg
 loadrt logic count=1 personality=0x106
 loadrt not count=1
 loadrt scale count=1
+loadrt conv_s32_float names=s32float.tool
 loadusr pi500_vfd --device /dev/ttyUSB0 --baud 9600
 
 
@@ -25,9 +27,13 @@ addf hm2_7i76e.0.write         servo-thread
 setp hm2_7i76e.0.dpll.01.timer-us -50
 setp hm2_7i76e.0.stepgen.timer-number 1
 
+
 addf scale.0 servo-thread
 
 
+addf s32float.tool servo-thread
+net pocketprepnumer s32float.tool.in
+net transferpocket2 s32float.tool.out motion.analog-in-00
 
 
 #******************************
@@ -61,7 +67,8 @@ net MDI-mode              halui.mode.is-mdi
 # external output signals
 
 # Disable brake when machine is enabled
-net machine-is-on    	     	<= hm2_7i76e.0.7i76.0.0.output-00
+#net machine-is-on    	     	<= hm2_7i76e.0.7i76.0.0.output-00
+setp hm2_7i76e.0.7i76.0.0.output-00 true
 
 #net spindle-cooling-relay	<= hm2_7i76e.0.7i76.0.0.output-01
 net toolchange-relay		=> hm2_7i76e.0.7i76.0.0.output-04
@@ -77,7 +84,11 @@ net toolchange-relay		<= hm2_7i76e.0.7i76.0.0.input-24
 # Probing
 
 # TLS, but how to do the second probe?
-net probe-in 	hm2_7i76e.0.7i76.0.0.input-04-not => motion.probe-input
+addf or.probe servo-thread
+
+net probe-in1 	hm2_7i76e.0.7i76.0.0.input-04-not => or.probe.in0
+net probe-in2 	hm2_7i76e.0.7i76.0.0.input-05-not => or.probe.in1 
+net probe-out   or.probe.out => motion.probe-input
 
 
 #  ---coolant signals---
@@ -90,11 +101,15 @@ net coolant-flood     <=  iocontrol.0.coolant-flood
 
 
 #  ---probe signal---
+#net probe-in     =>  motion.probe-input
 
-net probe-in     =>  motion.probe-input
 
 #  ---motion control signals---
 
 net in-position               <=  motion.in-position
 net machine-is-enabled        <=  motion.motion-enabled
 
+
+
+# --- 2nd button inside the mill housing
+# input25 (NO)

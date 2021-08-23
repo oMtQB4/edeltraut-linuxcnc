@@ -10,7 +10,8 @@ G49
 G80
 G90
 
-G53G0 X0y1200z0
+G53G0 Z0
+G53G0 X0Y0
 
 (MSG, Machine send to rear parking position)
 

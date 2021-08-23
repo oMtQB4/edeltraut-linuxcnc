@@ -1,8 +1,8 @@
 addf mux4.0 servo-thread
-addf or2.0 servo-thread
-addf or2.1 servo-thread
-addf or2.2 servo-thread
-addf and2.0 servo-thread
+addf or.led.0 servo-thread
+addf or.led.1 servo-thread
+addf or.led.2 servo-thread
+addf and2.mpg servo-thread
 
 
 setp axis.x.jog-vel-mode 1
@@ -38,16 +38,16 @@ net mpg-z axis.z.jog-enable => joint.2.jog-enable
 #net mpg-a axis.a.jog-enable => joint.3.jog-enable
 
 # enable led of MPG
-net mpg-x or2.0.in0
-net mpg-y or2.0.in1
-net mpg-z or2.1.in0
-#net mpg-a or2.1.in1
-net led-or2.2.in0 or2.0.out => or2.2.in0
-net led-or2.2.in1 or2.1.out => or2.2.in1
-net led-or2.2.out and2.0.in0 or2.2.out
-net mpg-led-on and2.0.out => hm2_7i76e.0.7i76.0.0.output-03
+net mpg-x or.led.0.in0
+net mpg-y or.led.0.in1
+net mpg-z or.led.1.in0
+#net mpg-a or.led.1.in1
+net led-or2.2.in0 or.led.0.out => or.led.2.in0
+net led-or2.2.in1 or.led.1.out => or.led.2.in1
+net led-or2.2.out and2.mpg.in0 or.led.2.out
+net mpg-led-on and2.mpg.out => hm2_7i76e.0.7i76.0.0.output-03
 # LED on MPG is shown if and only if the manual mode is activated
-net led-manual    and2.0.in1 halui.mode.is-manual
+net led-manual    and2.mpg.in1 halui.mode.is-manual
 
 
 net encoder-counts <= hm2_7i76e.0.encoder.00.count
