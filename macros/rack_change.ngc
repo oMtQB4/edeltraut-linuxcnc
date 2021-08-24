@@ -258,9 +258,9 @@ O300 elseif [#<newtool> GT 0]
         F #<_hal[probe.ps_searchvel]>
         G91
         G38.2 Z #<_ini[TOOLSENSOR]MAXPROBE>
-        G38.4 Z2
+        G38.4 Z3
         F #<_hal[probe.ps_probevel]>
-        G38.2 Z-2
+        G38.2 Z-3
         ; Turn off airblast to clean sensor
         ;M65 P #<_ini[ATC_PINS]CLEAN_TS>
         O440 if [#5070 EQ 0]

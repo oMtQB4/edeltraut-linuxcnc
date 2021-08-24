@@ -1,0 +1,8 @@
+o<go_to_tc_pos> sub
+
+G53 G0 Z[#<_ini[AXIS_Z]MAX_LIMIT>]
+G53 G0 X[#<_ini[ATC]CHANGEX>] Y[#<_ini[ATC]CHANGEY>]
+
+o<go_to_tc_pos> endsub
+M2
+
