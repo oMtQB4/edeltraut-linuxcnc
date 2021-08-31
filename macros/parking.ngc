@@ -13,7 +13,7 @@ G90
 G53G0 Z0
 G53G0 X0Y0
 
-(MSG, Machine send to rear parking position)
+; (MSG, Machine send to rear parking position)
 
 O<Parking> endsub
 
