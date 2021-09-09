@@ -1956,8 +1956,7 @@ class ProbeScreenClass:
             # if toolnumber = 0 we will get an error because we will not be able to get
             # any tooldescription, so we avoid that case
             if toolnumber == 0:
-                pass
-                #message = _( "Please remove the mounted tool and press OK when done" )
+                message = _( "Please remove the mounted tool and press OK when done" )
             else:
                 tooltable = self.inifile.find("EMCIO", "TOOL_TABLE")
                 if not tooltable:
@@ -1969,18 +1968,18 @@ class ProbeScreenClass:
                 self.tooledit1.set_filename( toolfile )
                 tooldescr = self.tooledit1.get_toolinfo( toolnumber )[16]
                 message = _( "Please change to tool\n\n# {0:d}     {1}\n\n then click OK." ).format( toolnumber, tooldescr )
-                result = self.warning_dialog( message, title = _( "Manual Toolchange" ) )
-                if result:
-                    self.halcomp["toolchange-changed"] = True
-                else:
-                    print"toolchange abort", self.stat.tool_in_spindle, self.halcomp['toolchange-number']
-                    self.command.abort()
-                    self.halcomp['toolchange-number'] = self.stat.tool_in_spindle
-                    self.halcomp['toolchange-change'] = False
-                    self.halcomp['toolchange-changed'] = True
-                    self.messg = _( "Tool Change has been aborted!\n" )
-                    self.messg += _( "The old tool will remain set!" )
-                    self.warning_dialog( message)
+            result = self.warning_dialog( message, title = _( "Manual Toolchange" ) )
+            if result:
+                self.halcomp["toolchange-changed"] = True
+            else:
+                print"toolchange abort", self.stat.tool_in_spindle, self.halcomp['toolchange-number']
+                self.command.abort()
+                self.halcomp['toolchange-number'] = self.stat.tool_in_spindle
+                self.halcomp['toolchange-change'] = False
+                self.halcomp['toolchange-changed'] = True
+                self.messg = _( "Tool Change has been aborted!\n" )
+                self.messg += _( "The old tool will remain set!" )
+                self.warning_dialog( message)
         else:
             self.halcomp['toolchange-changed'] = False
 

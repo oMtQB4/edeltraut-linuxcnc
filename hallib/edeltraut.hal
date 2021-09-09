@@ -91,6 +91,8 @@ net probe-in1 	hm2_7i76e.0.7i76.0.0.input-04-not => or.probe.in0
 net probe-in2 	hm2_7i76e.0.7i76.0.0.input-05-not => or.probe.in1 
 net probe-out   or.probe.out => motion.probe-input
 
+#  --- ATC pressure sensor ---
+#net atc-pressure-sensor   hm2_7i76e.0.7i76.0.0.input-07
 
 #  ---coolant signals---
 
