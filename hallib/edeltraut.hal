@@ -17,7 +17,8 @@ loadrt logic count=1 personality=0x106
 loadrt not count=1
 loadrt scale count=1
 loadrt conv_s32_float names=s32float.tool
-loadusr pi500_vfd --device /dev/serial/by-id/usb-FTDI_FT232R_USB_UART_AB0JPYI4-if00-port0 --baud 9600
+loadrt dbounce names=probe.debounce
+loadusr pi500_vfd --devicetype 2 --device 192.168.1.76 --port 8899
 
 
 addf hm2_7i76e.0.read          servo-thread
@@ -30,6 +31,7 @@ setp hm2_7i76e.0.stepgen.timer-number 1
 
 addf scale.0 servo-thread
 
+addf probe.debounce servo-thread
 
 addf s32float.tool servo-thread
 net pocketprepnumer s32float.tool.in
@@ -87,7 +89,9 @@ net toolchange-relay		<= hm2_7i76e.0.7i76.0.0.input-24
 # TLS, but how to do the second probe?
 addf or.probe servo-thread
 
-net probe-in1 	hm2_7i76e.0.7i76.0.0.input-04-not => or.probe.in0
+#setp probe.debounce.delay 
+net probe-in1-debounce hm2_7i76e.0.7i76.0.0.input-04-not => probe.debounce.in
+net probe-in1 	probe.debounce.out => or.probe.in0
 net probe-in2 	hm2_7i76e.0.7i76.0.0.input-05-not => or.probe.in1 
 net probe-out   or.probe.out => motion.probe-input
 

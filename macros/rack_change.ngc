@@ -258,8 +258,8 @@ O300 elseif [#<newtool> GT 0]
         F #<_hal[probe.ps_searchvel]>
         G91
         G38.2 Z #<_ini[TOOLSENSOR]MAXPROBE>
-        ;G38.4 Z3
-	G0 Z1
+        G38.4 Z3
+	;G0 Z1
         F #<_hal[probe.ps_probevel]>
         G38.2 Z-3
         ; Turn off airblast to clean sensor
