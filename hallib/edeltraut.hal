@@ -31,12 +31,15 @@ setp hm2_7i76e.0.stepgen.timer-number 1
 
 addf scale.0 servo-thread
 
-addf probe.debounce servo-thread
+
+# Tool Information (this is important for the rack_change)
+net toolnumber  iocontrol.0.tool-number 
+net toolprepnumber iocontrol.0.tool-prep-number  
+net pocketprepnumer iocontrol.0.tool-prep-pocket 
 
 addf s32float.tool servo-thread
 net pocketprepnumer s32float.tool.in
 net transferpocket2 s32float.tool.out motion.analog-in-00
-
 
 #******************************
 # connect miscellaneous signals
@@ -88,8 +91,8 @@ net toolchange-relay		<= hm2_7i76e.0.7i76.0.0.input-24
 
 # TLS, but how to do the second probe?
 addf or.probe servo-thread
+addf probe.debounce servo-thread
 
-#setp probe.debounce.delay 
 net probe-in1-debounce hm2_7i76e.0.7i76.0.0.input-04-not => probe.debounce.in
 net probe-in1 	probe.debounce.out => or.probe.in0
 net probe-in2 	hm2_7i76e.0.7i76.0.0.input-05-not => or.probe.in1 
