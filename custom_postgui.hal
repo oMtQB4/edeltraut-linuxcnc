@@ -38,3 +38,7 @@ net tool-changed gmoccapy.toolchange-changed <= iocontrol.0.tool-changed
 net tool-prep-number gmoccapy.toolchange-number <= iocontrol.0.tool-prep-number
 net tool-prep-loop iocontrol.0.tool-prepare <= iocontrol.0.tool-prepared
 
+# Showing the offsets in the GUI from gmoccapy
+net tooloffset-x gmoccapy.tooloffset-x <= motion.tooloffset.x
+net tooloffset-z gmoccapy.tooloffset-z <= motion.tooloffset.z
+
