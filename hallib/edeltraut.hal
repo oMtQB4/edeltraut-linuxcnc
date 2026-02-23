@@ -4,7 +4,7 @@
 # overwritten when you run PNCconf again
 
 loadrt [KINS]KINEMATICS
-loadrt [EMCMOT]EMCMOT base_period_nsec=[EMCMOT]BASE_PERIOD servo_period_nsec=[EMCMOT]SERVO_PERIOD num_joints=[KINS]JOINTS
+loadrt [EMCMOT]EMCMOT base_period_nsec=[EMCMOT]BASE_PERIOD servo_period_nsec=[EMCMOT]SERVO_PERIOD num_joints=[KINS]JOINTS num_dio=6 num_aio=3
 loadrt hostmot2
 loadrt hm2_eth board_ip="10.10.10.10" config=" num_encoders=1 num_pwmgens=0 num_stepgens=5 sserial_port_0=00xxxx" 
 setp    hm2_7i76e.0.watchdog.timeout_ns 5000000
@@ -12,12 +12,13 @@ setp    hm2_7i76e.0.watchdog.timeout_ns 5000000
 
 loadrt mux4 count=1
 loadrt or2 names=or.led.0,or.led.1,or.led.2,or.probe
-loadrt and2 names=and2.mpg
+loadrt and2 names=and2.mpg,probe.and
 loadrt logic count=1 personality=0x106
-loadrt not count=1
+loadrt not count=2
 loadrt scale count=1
-loadrt conv_s32_float names=s32float.tool
+loadrt conv_s32_float names=probe.floatconversion
 loadrt dbounce names=probe.debounce
+loadrt near names=probe.near
 loadusr pi500_vfd --devicetype 2 --device 192.168.1.76 --port 8899
 
 
@@ -32,14 +33,19 @@ setp hm2_7i76e.0.stepgen.timer-number 1
 addf scale.0 servo-thread
 
 
-# Tool Information (this is important for the rack_change)
-net toolnumber  iocontrol.0.tool-number 
-net toolprepnumber iocontrol.0.tool-prep-number  
-net pocketprepnumer iocontrol.0.tool-prep-pocket 
+#******************************
+# connect tool change signals
+#******************************
 
-addf s32float.tool servo-thread
-net pocketprepnumer s32float.tool.in
-net transferpocket2 s32float.tool.out motion.analog-in-00
+# manual tool change signals
+net tool-change-request    <=     iocontrol.0.tool-change
+net tool-change-confirmed  =>     iocontrol.0.tool-changed
+net tool-number            <=     iocontrol.0.tool-prep-number
+
+# create signals for tool loading loopback
+net tool-prep-loopback iocontrol.0.tool-prepare iocontrol.0.tool-prepared
+# net tool-change-loop iocontrol.0.tool-change iocontrol.0.tool-changed
+
 
 #******************************
 # connect miscellaneous signals
@@ -73,6 +79,7 @@ net MDI-mode              halui.mode.is-mdi
 
 # Disable brake when machine is enabled
 net machine-is-on    	     	<= hm2_7i76e.0.7i76.0.0.output-00
+# I guess, this is the manual override
 #setp hm2_7i76e.0.7i76.0.0.output-00 true
 
 net toolchange-relay		=> hm2_7i76e.0.7i76.0.0.output-04
@@ -89,17 +96,32 @@ net toolchange-relay		<= hm2_7i76e.0.7i76.0.0.input-24
 #********************
 # Probing
 
+# How it works:
+# 1. 3D Finder signal is in probe.and.in1
+# 2. It only works if it is a probing session (motion.motion-type)
+
 # TLS, but how to do the second probe?
 addf or.probe servo-thread
 addf probe.debounce servo-thread
+addf probe.floatconversion servo-thread
+addf probe.near servo-thread
+addf probe.and servo-thread
 
-net probe-in1-debounce hm2_7i76e.0.7i76.0.0.input-04-not => probe.debounce.in
-net probe-in1 	probe.debounce.out => or.probe.in0
-net probe-in2 	hm2_7i76e.0.7i76.0.0.input-05-not => or.probe.in1 
-net probe-out   or.probe.out => motion.probe-input
+setp probe.near.difference 0.5
+setp probe.near.in1        5.0
+
+net probe-conv  motion.motion-type => probe.floatconversion.in
+net probe-near  probe.floatconversion.out => probe.near.in2
+
+net probe-in2-near probe.near.out => probe.and.in0
+net probe-in2-and hm2_7i76e.0.7i76.0.0.input-05 => probe.and.in1
+
+net probe-out   probe.and.out => motion.probe-input
+
+
 
 #  --- ATC pressure sensor ---
-#net atc-pressure-sensor   hm2_7i76e.0.7i76.0.0.input-07
+net atc-pressure-sensor   hm2_7i76e.0.7i76.0.0.input-07
 
 #  ---coolant signals---
 

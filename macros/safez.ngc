@@ -1,0 +1,7 @@
+O<SafeZ> sub
+
+G53 G0 G90 Z0
+
+O<SafeZ> endsub
+
+M2

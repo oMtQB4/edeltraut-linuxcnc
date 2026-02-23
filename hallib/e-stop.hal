@@ -29,7 +29,7 @@ net e-stop-out	    	    logic.0.and => iocontrol.0.emc-enable-in
 
 #sets iocontrol.0.emc-enabl
 
-# just for debug purpose
+# Simple estop passthrough (no Mesa card)
 #net estop-out     <=  iocontrol.0.user-enable-out
 #net estop-out     => iocontrol.0.emc-enable-in
 

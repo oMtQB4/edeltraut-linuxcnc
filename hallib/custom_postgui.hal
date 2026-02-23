@@ -1,6 +1,12 @@
 # Include your custom_postgui HAL commands here
 # This file will not be overwritten when you run PNCconf again
 
+loadrt time
+
+addf time.0 servo-thread
+addf not.1 servo-thread
+
+
 # Slave address! Important
 setp pi500-vfd.0.mbslaveaddr       1
 
@@ -18,18 +24,24 @@ net motor-current-scale  pi500-vfd.0.motor-current => scale.0.in
 setp scale.0.offset 0
 setp scale.0.gain 1000
 
-net spindle-at-speed gmoccapy.spindle_at_speed_led
-net spindle-current gmoccapy.spindle_feedback_bar scale.0.out
 
 
-# The next lines are only needed if the pins had been connected before
-#unlinkp iocontrol.0.tool-change
-#unlinkp iocontrol.0.tool-changed
+net prog-running not.1.in <= halui.program.is-idle
+net prog-paused halui.program.is-paused => time.0.pause
+net cycle-timer time.0.start <= not.1.out
+net cycle-seconds qtpyvcp.timerseconds.in <= time.0.seconds
+net cycle-minutes qtpyvcp.timerminutes.in <= time.0.minutes
+net cycle-hours qtpyvcp.timerhours.in <= time.0.hours
+# *** Time items required for Probe Basic to run ***
 
-# link to gmoccapy toolchange, so you get the advantage of tool description on change dialog
-#net tool-change gmoccapy.toolchange-change <= iocontrol.0.tool-change
-#net tool-changed gmoccapy.toolchange-changed <= iocontrol.0.tool-changed
-#net tool-prep-number gmoccapy.toolchange-number <= iocontrol.0.tool-prep-number
+#  ---manual tool change signals---
+net tool-change-request     =>  qtpyvcp_manualtoolchange.change
+net tool-change-confirmed   <=  qtpyvcp_manualtoolchange.changed
+net tool-number             =>  qtpyvcp_manualtoolchange.number
 
-net tool-prep-loop iocontrol.0.tool-prepare <= iocontrol.0.tool-prepared
+# *** Probe graphic simulation trigger push probe tip ***
+#net probe-out  =>  qtpyvcp.probe-in.out
+#net probe-in  <=  qtpyvcp.probe-led.on
 
+# *** Set line below for actual spindle readout from your hal file ***
+#net spindle-rpm-filtered scale_to_rpm.out  =>  qtpyvcp.spindle-encoder-rpm.in

@@ -236,47 +236,6 @@ O300 elseif [#<newtool> GT 0]
             (print, A tool is manually loaded and we can continue with measurement)
         O320 ENDIF
 
-        ; Perform tool measurement - first rapid to toolsensorposition
-        G53 G0 Z[#<_ini[AXIS_Z]MAX_LIMIT>]
-        G53 G0 X[#<_ini[TOOLSENSOR]X>] Y[#<_ini[TOOLSENSOR]Y> - #<_ini[ATC]SAFE_Y>]
-        ; Turn on airblast to clean tool length sensor
-        ;M64 P #<_ini[ATC_PINS]CLEAN_TS>
-        G53 G01 X[#<_ini[TOOLSENSOR]X>] Y[#<_ini[TOOLSENSOR]Y>] F#<_ini[ATC]DROPSPEEDRAPID>
-        G53 G0 Z[#<_ini[TOOLSENSOR]Z>]
-
-        ; Check certain inputs in probe_screen
-        O420 if [#<_hal[probe.ps_searchvel]> LE 0]
-            O420 return [-1] ; indicate searchvel <= 0 
-        O420 endif
-        O430 if [#<_hal[probe.ps_probevel]> LE 0]
-            O430 return [-2] ; indicate probevel <= 0 
-        O430 endif
-
-		G59
-        
-        ; Perform tool measurement in relative motion
-        F #<_hal[probe.ps_searchvel]>
-        G91
-        G38.2 Z #<_ini[TOOLSENSOR]MAXPROBE>
-        G38.4 Z3
-        F #<_hal[probe.ps_probevel]>
-        G38.2 Z-3
-        ; Turn off airblast to clean sensor
-        ;M65 P #<_ini[ATC_PINS]CLEAN_TS>
-        O440 if [#5070 EQ 0]
-            G90
-            O440 return [-3] ; indicate probe contact failure to epilog
-        O440 endif
-
-        G90
-        G53 G0 Z[#<_ini[AXIS_Z]MAX_LIMIT>]
-        G53 G0 Y[#<_ini[TOOLSENSOR]Y> - #<_ini[ATC]SAFE_Y>]
-        (print, moving away from ts)
-        #<touch_result> = #5063
-        #<probeheight> = #<_hal[probe.probeheight]> 
-        #<blockheight> = #<_hal[probe.blockheight]>
-        (print, #<touch_result>  #<probeheight>  #<blockheight>)
-        G10 L1 P#<newtool> Z[#<touch_result> - #<_hal[probe.probeheight]> + #<_hal[probe.blockheight]>]
         G43
     O310 endif
 O300 endif

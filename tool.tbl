@@ -1,37 +1,46 @@
-T1   P1   Z+24.710600 ; 
-T2   P2   ; 
-T3   P3   ; 
-T4   P4   ;new tool 
-T5   P5   ;new tool 
-T6   P6   ;new tool 
-T7   P7   ;new tool 
-T8   P8   D+4.000000 Z+20.000000 ;Alu 4mm Z1 16mm 
-T9   P9   Z+26.204400 ;new tool 
-T11  P11  Z+35.114900 ;new tool 
-T12  P12  ;new tool 
-T13  P13  ;new tool 
-T19  P19  ;added 20201211 
-T18  P18  Z+26.006900 ;6mm Z4 Endmill Beyond CNC Home 
-T73  P73  Z+47.158698 ;4.2mm Drill 
-T85  P85  Z+24.558500 ;6mm 90° Anbohrer 
-T82  P82  Z+23.213865 ;8mm 90° Entgrater 
-T61  P61  D+4.900000 Z+40.642200 ;4.9mm Drill 
-T32  P32  Z+32.817700 ;4mm Gewindewirbler 
-T72  P72  D+3.300000 Z+38.483000 ;3.3mm Drill 
-T55  P55  D+2.000000 Z+24.969800 ;2mm Ballnose Endmill 
-T63  P63  Z+34.442400 ;comment 
-T31  P31  Z+27.434800 ;2mm Gewindeschneider 
-T26  P26  Z+27.128900 ;comment 
-T16  P16  D+8.000000 Z+57.606000 ;8mm 40l Z2 
-T76  P76  Z+67.748100 ;5.5mm Drill 
-T35  P35  ;comment 
-T64  P64  Z+30.407300 ;1.6mm Drill 
-T53  P53  Z+29.149800 ;comment 
-T69  P69  Z+56.776698 ;comment 
-T52  P52  D+2.000000 Z+39.412000 ;2mm Z1 
-T83  P83  Z+29.092700 ;10mm 90° Entgrater 
-T21  P21  D+6.000000 Z+32.588100 ;6mm Z1 16mm Aluminium 
-T80  P80  Z+27.739800 ;6mm 90° Entgrater 
-T10  P10  D+6.000000 Z+26.812698 ;6mm Z2 18mm Aluminium 
-T99  P99  ;3D Finder 
-T29  P29  D+8.000000 Z+56.790198 ;8mm Z3 25mm Aluminium 
+;Tool  Pocket Z Offset     Diameter     Remark
+T1     P1     Z+0.000000   D+0.000000   
+T2     P2     Z+0.000000   D+0.000000   
+T3     P3     Z+0.000000   D+0.000000   
+T4     P4     Z+0.000000   D+0.000000   ; new tool
+T5     P5     Z+0.000000   D+0.000000   ; new tool
+T6     P6     Z+0.000000   D+0.000000   ; new tool
+T7     P7     Z+0.000000   D+0.000000   ; new tool
+T8     P8     Z+0.000000   D+4.000000   ; Alu 4mm Z1 16mm
+T9     P9     Z+10.750000  D+4.000000   ; 4mm Z2 Aluminium (China)
+T10    P10    Z+0.000000   D+6.000000   ; 6mm Z2 18mm Aluminium
+T11    P11    Z+23.660000  D+8.000000   ; 8mm Z2 Aluminium (China)
+T12    P12    Z+0.000000   D+0.000000   ; new tool
+T13    P13    Z+0.000000   D+0.000000   ; new tool
+T16    P16    Z+0.000000   D+8.000000   ; 8mm 40l Z2
+T18    P18    Z+0.000000   D+6.000000   ; 6mm Z4 Endmill Beyond CNC Home
+T19    P19    Z+0.000000   D+0.000000   ; added 20201211
+T21    P21    Z+0.000000   D+6.000000   ; 6mm Z1 16mm Aluminium
+T25    P25    Z+0.000000   D+4.000000   ; Z1 ProAlu Sorotec, 4x16mm
+T26    P26    Z+0.000000   D+0.000000   ; comment
+T29    P29    Z+0.000000   D+8.000000   ; 8mm Z3 25mm Aluminium
+T31    P31    Z+0.000000   D+0.000000   ; 2mm Gewindeschneider
+T32    P32    Z+0.000000   D+0.000000   ; 4mm Gewindewirbler
+T35    P35    Z+0.000000   D+0.000000   ; comment
+T40    P40    Z+37.410000  D+6.000000   ; Z2 Wood Cutter Sorotec
+T41    P41    Z+24.040000  D+6.000000   ; Pro Acryl 6mm Z1
+T42    P42    Z+18.850000  D+3.000000   ; 3mm Sorotec Holzfräser Z2 mit Freischliff
+T51    P51    Z+0.000000   D+1.000000   ; Stepcraft 1mm
+T52    P52    Z+0.000000   D+2.000000   ; 2mm Z1
+T53    P53    Z+0.000000   D+0.000000   ; comment
+T55    P55    Z+0.000000   D+2.000000   ; 2mm Ballnose Endmill
+T61    P61    Z+0.000000   D+4.900000   ; 4.9mm Drill
+T62    P62    Z+0.000000   D+2.000000   ; 2mm Drill
+T63    P63    Z+0.000000   D+2.500000   ; 2.5mm Drill
+T64    P64    Z+0.000000   D+1.600000   ; 1.6mm Drill
+T69    P69    Z+0.000000   D+5.000000   ; 5mm Drill
+T72    P72    Z+0.000000   D+3.300000   ; 3.3mm Drill
+T73    P73    Z+0.000000   D+0.000000   ; 4.2mm Drill
+T76    P76    Z+0.000000   D+0.000000   ; 5.5mm Drill
+T80    P80    Z+0.000000   D+0.000000   ; 6mm 90° Entgrater
+T82    P82    Z+10.780000  D+8.000000   ; 8mm 90° Entgrater (REFERENZ!)
+T83    P83    Z+0.000000   D+0.000000   ; 10mm 90° Entgrater
+T85    P85    Z+0.000000   D+0.000000   ; 6mm 90° Anbohrer
+T97    P97    Z+0.000000   D+35.000000  ; Tornado 35mm Z4
+T99    P99    Z+0.000000   D+0.000000   
+T100   P100   Z+44.940000  D+3.500000   ; 3D Finder
